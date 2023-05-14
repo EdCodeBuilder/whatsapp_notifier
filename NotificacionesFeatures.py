@@ -22,36 +22,43 @@ while True:
     for producto in productos:
         # Realiza una solicitud HTTP GET a la página web
         response = requests.get(producto['url'])
+        # response = requests.get(producto['url'], headers=headers, timeout=timeout, verify=verify, allow_redirects=allow_redirects, encoding='utf-8')
 
         # Analiza el HTML de la página web con BeautifulSoup
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Encuentra el elemento que contiene la información de disponibilidad del producto
-        product_price = soup.find('strong', {'id': 'product-price'})
-        i_elements = soup.find('i', {'class': 'fa fa-check','style': 'color:#7ED321'}).find('span', {'class': 'product-container-inner'})
-        span_elements = i_elements.find('span', {'class': 'product-container-inner'})
-        # span_elements = i_elements.find_all('span').text
-        # for i_element in i_elements:
-            # span_elements.append(i_elements.find_all('span').text)
+        product_price = soup.find('strong', {'id': 'product-price'}).text.replace(" ", "")
+        i_elements = soup.find_all('i', {'class': "fa fa-check", 'style': "color:#7ED321"})
 
+        # funcion adicional
+        """ with open('element.txt', 'w', encoding='utf-8') as file:
+            file.write(i_element.prettify()) """
+        Tienda_disp = []
+        
         # Verifica si el producto está disponible
-        if i_elements is not None and span_elements.text == 'Cali Cañasgordas':
-        # if i_elements is not None and i_elements['style'] == 'color: #7ED321;' and span_elements.text == 'Cali Cañasgordas':
-        # if span_elements.text == producto['nombre']:
-            for numero in numeros:
-                # Envía un mensaje por WhatsApp usando Twilio
-                message = client.messages \
-                                .create(
-                                    body="¡{} está disponible en {} y cuesta {}!".format(producto['nombre'], producto['url'], product_price.text.replace(" ", "")),
-                                    from_='whatsapp:+14155238886',
-                                    to=numero
-                                )
+        if i_elements is not None:
+            for i in i_elements:
+                span_element =  i.find_next_sibling('span', {'class': "product-container-inner"})
+                if span_element is not None:
+                    Tienda_disp.append(span_element.text)
+            if 'Cali Cañasgordas' in Tienda_disp:
+                for numero in numeros:
+                    # Envía un mensaje por WhatsApp usando Twilio
+                    message = client.messages \
+                    .create(
+                        body="¡{} está disponible en {} y cuesta {}!".format(producto['nombre'], producto['url'], product_price),
+                        from_='whatsapp:+14155238886',
+                        to=numero
+                        )
 
-                print(message.sid)
-                print(message.body)
-                print('--------------------------------------------------------')
-        time.sleep(2)
+                    print(message.sid)
+                    print(message.body)
+                    print('--------------------------------------------------------')
+                    time.sleep(2)
 
-    # Espera 2 horas antes de realizar la siguiente consulta
-    time.sleep(7200)
+    # Espera 12 horas antes de realizar la siguiente consulta
+    horas = 3600*12
+    print("Proximo escaneo en {} horas".format(horas/3600))
+    time.sleep(horas)
     
