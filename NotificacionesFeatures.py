@@ -52,7 +52,9 @@ while True:
                         to=numero
                         )
 
-                    print(message.sid)
+                    print(message.price)
+                    print(message.price_unit)
+                    print(message.to)
                     print(message.body)
                     print('--------------------------------------------------------')
                     time.sleep(2)
