@@ -1,2 +1,6 @@
 WScraping/
 .vscode/
+__pycache__/
+scraper.log
+notifications_features.py
+notifications.py
